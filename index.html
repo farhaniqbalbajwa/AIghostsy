@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scary Cute Ghost 👻</title>
+
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    background: radial-gradient(circle at top, #1a1a2e, #000);
+    color: white;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+    overflow-x: hidden;
+}
+
+/* Floating Ghost */
+.ghost {
+    font-size: 130px;
+    animation: float 3s ease-in-out infinite, shake 5s infinite;
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+}
+
+/* Eyes */
+.ghost::after {
+    content: "👁 👁";
+    position: absolute;
+    top: 45px;
+    left: 28px;
+    font-size: 28px;
+    color: red;
+    text-shadow: 0 0 8px red;
+    transition: 0.3s;
+}
+
+/* Hover makes it scarier */
+.ghost:hover::after {
+    text-shadow: 0 0 20px red, 0 0 40px crimson;
+}
+
+/* Float animation */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Subtle creepy shake */
+@keyframes shake {
+    0%,100% { transform: translateX(0); }
+    98% { transform: translateX(-2px); }
+    99% { transform: translateX(2px); }
+}
+
+/* Input + Button */
+input {
+    padding: 10px;
+    width: 60%;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+}
+
+button {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    background: darkred;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.response {
+    margin-top: 20px;
+    font-size: 18px;
+    min-height: 40px;
+}
+
+/* Jump Scare */
+.jump-scare {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    font-size: 200px;
+    animation: flash 0.2s;
+}
+
+@keyframes flash {
+    0% { background: white; }
+    100% { background: black; }
+}
+</style>
+</head>
+
+<body>
+
+<h1>👻 The Scary-Cute Ghost 👻</h1>
+
+<div class="ghost" onclick="petGhost()">👻</div>
+
+<p>Ask me something... if you dare.</p>
+
+<input type="text" id="question" placeholder="Whisper your question...">
+<button onclick="answerQuestion()">Ask</button>
+
+<div class="response" id="response"></div>
+
+<div class="jump-scare" id="jumpscare">👹</div>
+
+<script>
+const spookyAnswers = [
+    "I sense fear... but I like you.",
+    "Hehehe... maybe yes.",
+    "No... but I still adore you.",
+    "The spirits are watching...",
+    "Only if you pet me first.",
+    "Your destiny smells spooky."
+];
+
+function answerQuestion() {
+    const input = document.getElementById("question").value;
+    const response = document.getElementById("response");
+
+    if (input.trim() === "") {
+        response.innerText = "Speak... mortal 👁";
+        return;
+    }
+
+    // 25% chance jump scare
+    if (Math.random() < 0.25) {
+        triggerJumpScare();
+        return;
+    }
+
+    const randomAnswer = spookyAnswers[Math.floor(Math.random() * spookyAnswers.length)];
+    response.innerText = randomAnswer;
+}
+
+function petGhost() {
+    document.getElementById("response").innerText = "Hehehe... I might haunt you later 👻";
+}
+
+function triggerJumpScare() {
+    const scare = document.getElementById("jumpscare");
+    scare.style.display = "flex";
+
+    setTimeout(() => {
+        scare.style.display = "none";
+        document.getElementById("response").innerText = "BOOO! Did I scare you? 👹";
+    }, 700);
+}
+</script>
+
+</body>
+</html>
