@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scary Cute Ghost 👻</title>
+<title>AI Haunted Ghost 👻</title>
 
 <style>
 body {
@@ -11,144 +11,124 @@ body {
     padding: 0;
     background: radial-gradient(circle at top, #1a1a2e, #000);
     color: white;
-    font-family: 'Courier New', monospace;
+    font-family: monospace;
     text-align: center;
-    overflow-x: hidden;
 }
 
-/* Floating Ghost */
 .ghost {
     font-size: 130px;
-    animation: float 3s ease-in-out infinite, shake 5s infinite;
+    animation: float 3s ease-in-out infinite;
     cursor: pointer;
-    position: relative;
-    display: inline-block;
 }
 
-/* Eyes */
-.ghost::after {
-    content: "👁 👁";
-    position: absolute;
-    top: 45px;
-    left: 28px;
-    font-size: 28px;
-    color: red;
-    text-shadow: 0 0 8px red;
-    transition: 0.3s;
-}
-
-/* Hover makes it scarier */
-.ghost:hover::after {
-    text-shadow: 0 0 20px red, 0 0 40px crimson;
-}
-
-/* Float animation */
 @keyframes float {
-    0% { transform: translateY(0px); }
+    0%,100% { transform: translateY(0); }
     50% { transform: translateY(-20px); }
-    100% { transform: translateY(0px); }
 }
 
-/* Subtle creepy shake */
-@keyframes shake {
-    0%,100% { transform: translateX(0); }
-    98% { transform: translateX(-2px); }
-    99% { transform: translateX(2px); }
-}
-
-/* Input + Button */
 input {
-    padding: 10px;
+    padding: 12px;
     width: 60%;
     border-radius: 10px;
     border: none;
-    font-size: 16px;
 }
 
 button {
-    padding: 10px 20px;
+    padding: 12px 20px;
     border-radius: 10px;
     border: none;
     background: darkred;
     color: white;
-    font-size: 16px;
     cursor: pointer;
 }
 
 .response {
     margin-top: 20px;
-    font-size: 18px;
     min-height: 40px;
+    padding: 20px;
 }
 
-/* Jump Scare */
 .jump-scare {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background: black;
     display: none;
     justify-content: center;
     align-items: center;
     font-size: 200px;
-    animation: flash 0.2s;
-}
-
-@keyframes flash {
-    0% { background: white; }
-    100% { background: black; }
 }
 </style>
 </head>
 
 <body>
 
-<h1>👻 The Scary-Cute Ghost 👻</h1>
+<h1>👻 AI Haunted Ghost 👻</h1>
 
 <div class="ghost" onclick="petGhost()">👻</div>
 
-<p>Ask me something... if you dare.</p>
+<p>Ask me anything... I truly understand now.</p>
 
-<input type="text" id="question" placeholder="Whisper your question...">
-<button onclick="answerQuestion()">Ask</button>
+<input type="text" id="question" placeholder="Ask your spooky question...">
+<button onclick="askGhost()">Ask</button>
 
 <div class="response" id="response"></div>
 
 <div class="jump-scare" id="jumpscare">👹</div>
 
 <script>
-const spookyAnswers = [
-    "I sense fear... but I like you.",
-    "Hehehe... maybe yes.",
-    "No... but I still adore you.",
-    "The spirits are watching...",
-    "Only if you pet me first.",
-    "Your destiny smells spooky."
-];
+const API_KEY = "https://chatgpt.com/g/g-69a25d6c53348191b7580bfb6b0f29e5-aighostsy";  // ⚠️ Replace
 
-function answerQuestion() {
+async function askGhost() {
     const input = document.getElementById("question").value;
-    const response = document.getElementById("response");
+    const responseBox = document.getElementById("response");
 
-    if (input.trim() === "") {
-        response.innerText = "Speak... mortal 👁";
+    if (!input.trim()) {
+        responseBox.innerText = "Speak clearly, mortal...";
         return;
     }
 
-    // 25% chance jump scare
-    if (Math.random() < 0.25) {
+    // 20% jump scare chance
+    if (Math.random() < 0.2) {
         triggerJumpScare();
         return;
     }
 
-    const randomAnswer = spookyAnswers[Math.floor(Math.random() * spookyAnswers.length)];
-    response.innerText = randomAnswer;
+    responseBox.innerText = "The ghost is thinking... 👁";
+
+    try {
+        const res = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + API_KEY
+            },
+            body: JSON.stringify({
+                model: "gpt-4o-mini",
+                messages: [
+                    {
+                        role: "system",
+                        content: "You are a scary but cute ghost. You answer intelligently like ChatGPT but in a spooky playful tone. Sometimes be slightly mischievous."
+                    },
+                    {
+                        role: "user",
+                        content: input
+                    }
+                ],
+                temperature: 0.8
+            })
+        });
+
+        const data = await res.json();
+        responseBox.innerText = data.choices[0].message.content;
+
+    } catch (err) {
+        responseBox.innerText = "The spirit world is disconnected...";
+    }
 }
 
 function petGhost() {
-    document.getElementById("response").innerText = "Hehehe... I might haunt you later 👻";
+    document.getElementById("response").innerText =
+        "Hehehe... careful... I might haunt your browser 👻";
 }
 
 function triggerJumpScare() {
@@ -157,7 +137,8 @@ function triggerJumpScare() {
 
     setTimeout(() => {
         scare.style.display = "none";
-        document.getElementById("response").innerText = "BOOO! Did I scare you? 👹";
+        document.getElementById("response").innerText =
+            "BOOOO! 😈 Now ask again...";
     }, 700);
 }
 </script>
