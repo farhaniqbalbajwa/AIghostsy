@@ -75,7 +75,24 @@ button {
 
 <div class="jump-scare" id="jumpscare">👹</div>
 
+<script src="./config.js"></script>
 <script>
+const isGithubPages = window.location.hostname.endsWith("github.io");
+const configuredBase = window.GHOST_API_BASE || "";
+const apiBase = configuredBase.replace(/\/$/, "");
+
+function getApiUrl(path) {
+    if (!apiBase && isGithubPages) {
+        return null;
+    }
+
+    if (!apiBase) {
+        return path;
+    }
+
+    return `${apiBase}${path}`;
+}
+
 async function askGhost() {
     const input = document.getElementById("question").value;
     const responseBox = document.getElementById("response");
@@ -85,16 +102,21 @@ async function askGhost() {
         return;
     }
 
-    // 20% jump scare chance
     if (Math.random() < 0.2) {
         triggerJumpScare();
+        return;
+    }
+
+    const askUrl = getApiUrl("/api/ask");
+    if (!askUrl) {
+        responseBox.innerText = "GitHub Pages cannot run backend code. Add GHOST_API_BASE in config.js to point to your deployed API.";
         return;
     }
 
     responseBox.innerText = "The ghost is thinking... 👁";
 
     try {
-        const res = await fetch("/api/ask", {
+        const res = await fetch(askUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
