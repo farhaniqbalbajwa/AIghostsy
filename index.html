@@ -76,8 +76,6 @@ button {
 <div class="jump-scare" id="jumpscare">👹</div>
 
 <script>
-const API_KEY = "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";  // 
-
 async function askGhost() {
     const input = document.getElementById("question").value;
     const responseBox = document.getElementById("response");
@@ -96,30 +94,24 @@ async function askGhost() {
     responseBox.innerText = "The ghost is thinking... 👁";
 
     try {
-        const res = await fetch("https://api.openai.com/v1/chat/completions", {
+        const res = await fetch("/api/ask", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + API_KEY
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "gpt-4o-mini",
-                messages: [
-                    {
-                        role: "system",
-                        content: "You are a scary but cute ghost. You answer intelligently like ChatGPT but in a spooky playful tone. Sometimes be slightly mischievous."
-                    },
-                    {
-                        role: "user",
-                        content: input
-                    }
-                ],
-                temperature: 0.8
+                question: input
             })
         });
 
         const data = await res.json();
-        responseBox.innerText = data.choices[0].message.content;
+
+        if (!res.ok) {
+            responseBox.innerText = data.error || "The spirit world is disconnected...";
+            return;
+        }
+
+        responseBox.innerText = data.answer;
 
     } catch (err) {
         responseBox.innerText = "The spirit world is disconnected...";
