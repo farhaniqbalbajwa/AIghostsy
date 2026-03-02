@@ -75,8 +75,23 @@ button {
 
 <div class="jump-scare" id="jumpscare">👹</div>
 
+<script src="./config.js"></script>
 <script>
-const API_KEY = "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";  // 
+const isGithubPages = window.location.hostname.endsWith("github.io");
+const configuredBase = window.GHOST_API_BASE || "";
+const apiBase = configuredBase.replace(/\/$/, "");
+
+function getApiUrl(path) {
+    if (!apiBase && isGithubPages) {
+        return null;
+    }
+
+    if (!apiBase) {
+        return path;
+    }
+
+    return `${apiBase}${path}`;
+}
 
 async function askGhost() {
     const input = document.getElementById("question").value;
@@ -87,39 +102,38 @@ async function askGhost() {
         return;
     }
 
-    // 20% jump scare chance
     if (Math.random() < 0.2) {
         triggerJumpScare();
+        return;
+    }
+
+    const askUrl = getApiUrl("/api/ask");
+    if (!askUrl) {
+        responseBox.innerText = "GitHub Pages cannot run backend code. Add GHOST_API_BASE in config.js to point to your deployed API.";
         return;
     }
 
     responseBox.innerText = "The ghost is thinking... 👁";
 
     try {
-        const res = await fetch("https://api.openai.com/v1/chat/completions", {
+        const res = await fetch(askUrl, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + API_KEY
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "gpt-4o-mini",
-                messages: [
-                    {
-                        role: "system",
-                        content: "You are a scary but cute ghost. You answer intelligently like ChatGPT but in a spooky playful tone. Sometimes be slightly mischievous."
-                    },
-                    {
-                        role: "user",
-                        content: input
-                    }
-                ],
-                temperature: 0.8
+                question: input
             })
         });
 
         const data = await res.json();
-        responseBox.innerText = data.choices[0].message.content;
+
+        if (!res.ok) {
+            responseBox.innerText = data.error || "The spirit world is disconnected...";
+            return;
+        }
+
+        responseBox.innerText = data.answer;
 
     } catch (err) {
         responseBox.innerText = "The spirit world is disconnected...";
